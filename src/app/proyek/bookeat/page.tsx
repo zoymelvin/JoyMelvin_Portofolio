@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Github,
@@ -9,7 +10,6 @@ import {
   ArrowRight,
   CheckCircle,
   Lightbulb,
-  Wrench,
   Tv,
   ChevronLeft,
   ChevronRight,
@@ -19,6 +19,10 @@ import {
   Moon,
   SunMedium,
   Send,
+  X,
+   Wrench, 
+  ExternalLink,
+  Award,
 } from "lucide-react";
 
 // ==========================================
@@ -95,7 +99,7 @@ BookEat/
 `;
 
 // ==========================================
-// Tipe Data & Parser (versi RasAi)
+// Tipe Data & Parser
 // ==========================================
 interface TreeNode {
   name: string;
@@ -107,20 +111,17 @@ function parseArchitecture(text: string): TreeNode {
   const lines = text.trim().split("\n");
   const rootName = lines.shift()?.trim().replace(/\/$/, "") || "Project Root";
   const root: TreeNode = { name: rootName, children: [], level: 0 };
-  const stack: { node: TreeNode; indent: number }[] = [
-    { node: root, indent: -1 },
-  ];
+  const stack: { node: TreeNode; indent: number }[] = [{ node: root, indent: -1 }];
 
   lines.forEach((line) => {
     if (!line.trim()) return;
 
-    // indent dihitung dari jumlah '│' atau spasi
+    // indent dari '│' atau spasi
     const indent = (line.match(/│| /g) || []).join("").length;
     // ambil nama setelah '├──' / '└──'
     const name = line.replace(/.*[├──└──]\s*/, "").trim();
 
     const newNode: TreeNode = { name, children: [], level: stack.length };
-
     while (stack.length > 0 && stack[stack.length - 1].indent >= indent) {
       stack.pop();
     }
@@ -162,17 +163,15 @@ const Navbar: React.FC<{
         zoymelvin
       </Link>
       <div className="hidden gap-6 md:flex">
-        {["tentang", "pendidikan", "skill", "proyek", "sertifikat", "kontak"].map(
-          (id) => (
-            <Link
-              key={id}
-              href={`/#${id}`}
-              className="text-sm capitalize text-zinc-300 hover:text-indigo-400 transition-colors"
-            >
-              {id}
-            </Link>
-          )
-        )}
+        {["tentang", "pendidikan", "skill", "proyek", "sertifikat", "kontak"].map((id) => (
+          <Link
+            key={id}
+            href={`/#${id}`}
+            className="text-sm capitalize text-zinc-300 hover:text-indigo-400 transition-colors"
+          >
+            {id}
+          </Link>
+        ))}
       </div>
       <div className="flex items-center gap-2">
         <button
@@ -194,21 +193,39 @@ const Navbar: React.FC<{
 );
 
 // ==========================================
-// Image Carousel (gaya RasAi)
+// Image Carousel — pakai next/image (rapih)
 // ==========================================
-const ImageCarousel = ({
-  images,
-  captions,
-}: {
-  images: string[];
-  captions: string[];
-}) => {
+const CarouselImageCenter: React.FC<{ src: string; alt: string }> = ({ src, alt }) => (
+  <div className="relative w-[250px] h-[500px]">
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      className="object-contain rounded-2xl shadow-2xl"
+      sizes="(max-width: 768px) 250px, 250px"
+      priority={false}
+    />
+  </div>
+);
+
+const CarouselImageSide: React.FC<{ src: string; alt: string }> = ({ src, alt }) => (
+  <div className="relative w-[250px] h-[500px]">
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      className="object-contain rounded-2xl"
+      sizes="(max-width: 768px) 250px, 250px"
+      priority={false}
+    />
+  </div>
+);
+
+const ImageCarousel = ({ images, captions }: { images: string[]; captions: string[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const handleNext = () =>
-    setCurrentIndex((prev) => (prev + 1) % images.length);
-  const handlePrev = () =>
-    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  const handleNext = () => setCurrentIndex((prev) => (prev + 1) % images.length);
+  const handlePrev = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
 
   return (
     <div className="relative w-full flex flex-col items-center justify-center">
@@ -220,17 +237,16 @@ const ImageCarousel = ({
         <AnimatePresence>
           {/* Gambar Tengah */}
           <motion.div
-            key={currentIndex}
+            key={`center-${currentIndex}`}
             className="absolute z-10"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ type: "spring", stiffness: 200, damping: 25 }}
           >
-            <img
+            <CarouselImageCenter
               src={images[currentIndex]}
-              alt={`Screenshot ${currentIndex + 1}`}
-              className="w-[250px] h-auto object-contain rounded-2xl shadow-2xl"
+              alt={`BookEat screenshot ${currentIndex + 1}`}
             />
           </motion.div>
 
@@ -238,50 +254,28 @@ const ImageCarousel = ({
           {images.length > 1 && (
             <>
               <motion.div
-                key={`${currentIndex}-prev`}
+                key={`prev-${currentIndex}`}
                 className="absolute z-0"
-                initial={{
-                  opacity: 0,
-                  scale: 0.5,
-                  x: "-120%",
-                  filter: "blur(8px)",
-                }}
-                animate={{
-                  opacity: 0.4,
-                  scale: 0.7,
-                  x: "-120%",
-                  filter: "blur(4px)",
-                }}
+                initial={{ opacity: 0, scale: 0.5, x: "-120%", filter: "blur(8px)" }}
+                animate={{ opacity: 0.4, scale: 0.7, x: "-120%", filter: "blur(4px)" }}
                 transition={{ type: "spring", stiffness: 200, damping: 25 }}
               >
-                <img
-                  src={
-                    images[(currentIndex - 1 + images.length) % images.length]
-                  }
-                  className="w-[250px] h-auto object-contain rounded-2xl"
+                <CarouselImageSide
+                  src={images[(currentIndex - 1 + images.length) % images.length]}
+                  alt={`BookEat screenshot ${((currentIndex - 1 + images.length) % images.length) + 1}`}
                 />
               </motion.div>
 
               <motion.div
-                key={`${currentIndex}-next`}
+                key={`next-${currentIndex}`}
                 className="absolute z-0"
-                initial={{
-                  opacity: 0,
-                  scale: 0.5,
-                  x: "120%",
-                  filter: "blur(8px)",
-                }}
-                animate={{
-                  opacity: 0.4,
-                  scale: 0.7,
-                  x: "120%",
-                  filter: "blur(4px)",
-                }}
+                initial={{ opacity: 0, scale: 0.5, x: "120%", filter: "blur(8px)" }}
+                animate={{ opacity: 0.4, scale: 0.7, x: "120%", filter: "blur(4px)" }}
                 transition={{ type: "spring", stiffness: 200, damping: 25 }}
               >
-                <img
+                <CarouselImageSide
                   src={images[(currentIndex + 1) % images.length]}
-                  className="w-[250px] h-auto object-contain rounded-2xl"
+                  alt={`BookEat screenshot ${((currentIndex + 1) % images.length) + 1}`}
                 />
               </motion.div>
             </>
@@ -292,12 +286,14 @@ const ImageCarousel = ({
         <button
           onClick={handlePrev}
           className="absolute left-8 top-1/2 -translate-y-1/2 z-30 p-2 bg-black/20 rounded-full text-white hover:bg-black/40 transition-colors"
+          aria-label="Previous screenshot"
         >
           <ChevronLeft size={24} />
         </button>
         <button
           onClick={handleNext}
           className="absolute right-8 top-1/2 -translate-y-1/2 z-30 p-2 bg-black/20 rounded-full text-white hover:bg-black/40 transition-colors"
+          aria-label="Next screenshot"
         >
           <ChevronRight size={24} />
         </button>
@@ -307,7 +303,7 @@ const ImageCarousel = ({
       <div className="text-center mt-4 w-full px-8 h-10">
         <AnimatePresence mode="wait">
           <motion.p
-            key={currentIndex}
+            key={`caption-${currentIndex}`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
@@ -323,31 +319,23 @@ const ImageCarousel = ({
 };
 
 // ==========================================
-// Arsitektur Tree (gaya RasAi)
+// Arsitektur Tree
 // ==========================================
-const TreeNodeComponent: React.FC<{ node: TreeNode; isLast: boolean }> = ({
-  node,
-  isLast,
-}) => {
-  const isFolder =
-    node.children.length > 0 || !node.name.includes(".") || node.name.endsWith("/");
+const TreeNodeComponent: React.FC<{ node: TreeNode; isLast: boolean }> = ({ node, isLast }) => {
+  const isFolder = node.children.length > 0 || !node.name.includes(".") || node.name.endsWith("/");
 
   return (
     <div className="relative pl-8">
-      {/* garis vertikal di sisi kiri */}
+      {/* garis vertikal */}
       <div
-        className={`absolute left-[9px] top-0 w-[2px] bg-indigo-900/60 ${
-          isLast ? "h-[18px]" : "h-full"
-        }`}
-      ></div>
-      {/* garis horizontal untuk node */}
-      <div className="absolute left-[11px] top-[17px] h-[2px] w-4 bg-indigo-900/60"></div>
+        className={`absolute left-[9px] top-0 w-[2px] bg-indigo-900/60 ${isLast ? "h-[18px]" : "h-full"}`}
+      />
+      {/* garis horizontal */}
+      <div className="absolute left-[11px] top-[17px] h-[2px] w-4 bg-indigo-900/60" />
 
       {/* ikon & nama */}
       <div className="relative flex items-center gap-2 mb-2 pt-1">
-        <div className="text-indigo-400">
-          {isFolder ? <Folder size={16} /> : <File size={16} />}
-        </div>
+        <div className="text-indigo-400">{isFolder ? <Folder size={16} /> : <File size={16} />}</div>
         <span className="text-zinc-300">{node.name}</span>
       </div>
 
@@ -355,11 +343,7 @@ const TreeNodeComponent: React.FC<{ node: TreeNode; isLast: boolean }> = ({
       {isFolder && (
         <div className="pl-6">
           {node.children.map((child, index) => (
-            <TreeNodeComponent
-              key={index}
-              node={child}
-              isLast={index === node.children.length - 1}
-            />
+            <TreeNodeComponent key={index} node={child} isLast={index === node.children.length - 1} />
           ))}
         </div>
       )}
@@ -375,11 +359,7 @@ const ArchitectureTree: React.FC<{ data: TreeNode }> = ({ data }) => (
     </div>
     <div className="pl-6">
       {data.children.map((child, index) => (
-        <TreeNodeComponent
-          key={index}
-          node={child}
-          isLast={index === data.children.length - 1}
-        />
+        <TreeNodeComponent key={index} node={child} isLast={index === data.children.length - 1} />
       ))}
     </div>
   </div>
@@ -404,9 +384,7 @@ export default function ProjectDetailPage() {
           <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-white">
             {projectData.title}
           </h1>
-          <p className="mt-4 max-w-3xl text-lg text-zinc-400">
-            {projectData.shortDescription}
-          </p>
+          <p className="mt-4 max-w-3xl text-lg text-zinc-400">{projectData.shortDescription}</p>
           <a
             href={projectData.githubUrl}
             target="_blank"
@@ -420,10 +398,7 @@ export default function ProjectDetailPage() {
         {/* Galeri */}
         <div className="mt-16 md:mt-24">
           <h2 className="text-3xl font-bold text-center mb-4">Galeri Proyek</h2>
-          <ImageCarousel
-            images={projectData.gallery}
-            captions={projectData.galleryCaptions}
-          />
+          <ImageCarousel images={projectData.gallery} captions={projectData.galleryCaptions} />
         </div>
 
         {/* Tujuan & Fitur */}
@@ -439,9 +414,7 @@ export default function ProjectDetailPage() {
               <h3 className="text-2xl font-semibold flex items-center gap-3 mb-3">
                 <Lightbulb className="text-indigo-400" /> Tantangan & Solusi
               </h3>
-              <p className="font-semibold text-zinc-200">
-                {projectData.challenge.title}
-              </p>
+              <p className="font-semibold text-zinc-200">{projectData.challenge.title}</p>
               <p className="text-zinc-400 mt-1">{projectData.challenge.problem}</p>
               <p className="text-zinc-400 mt-2">
                 <strong className="text-indigo-400">Solusi:</strong>{" "}
@@ -464,16 +437,8 @@ export default function ProjectDetailPage() {
           </div>
         </div>
 
-        {/* Arsitektur */}
-        <div className="mt-16 md:mt-24">
-          <h3 className="text-3xl font-bold text-center flex items-center justify-center gap-3 mb-8">
-            <FolderTree className="text-indigo-400" /> Arsitektur Proyek
-          </h3>
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
-            <ArchitectureTree data={architectureData} />
-          </div>
-        </div>
 
+         {/* >>> Pindahkan Teknologi ke ATAS Arsitektur <<< */}
         {/* Tech Stack */}
         <div className="mt-16 md:mt-24">
           <h3 className="text-3xl font-bold text-center flex items-center justify-center gap-3 mb-8">
@@ -492,8 +457,18 @@ export default function ProjectDetailPage() {
             </div>
           </div>
         </div>
+        
+        {/* Arsitektur */}
+        <div className="mt-16 md:mt-24">
+          <h3 className="text-3xl font-bold text-center flex items-center justify-center gap-3 mb-8">
+            <FolderTree className="text-indigo-400" /> Arsitektur Proyek
+          </h3>
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
+            <ArchitectureTree data={architectureData} />
+          </div>
+        </div>
 
-        {/* Navigasi bawah — sama seperti RasAi/DokiDoki */}
+        {/* Navigasi bawah */}
         <div className="mt-24 pt-12 border-t border-zinc-800 flex justify-between items-center">
           <Link
             href={`/proyek/${projectData.prevProject.slug}`}
