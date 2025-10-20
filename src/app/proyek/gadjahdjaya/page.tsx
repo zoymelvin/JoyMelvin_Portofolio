@@ -54,7 +54,7 @@ const projectData = {
     problem:
       "Pemilik usaha membutuhkan rekap data penjualan dalam format yang mudah diolah di luar aplikasi, seperti spreadsheet (Excel). Aplikasi perlu menyediakan fitur untuk mengekspor data transaksi ke dalam format file yang universal.",
     solution:
-      "Saya membuat utility `CsvExporter.kt` untuk mengambil data transaksi dari Firebase, memformat ke standar CSV, kemudian menyimpan berkas `.csv` melalui Storage Access Framework Android.",
+      "Saya membuat sebuah utility class `CsvExporter.kt`. Class ini bertanggung jawab untuk mengambil data transaksi dari Firebase, memformatnya sesuai standar CSV, lalu menyimpan file `.csv` lewat Storage Access Framework Android.",
   },
   techStack: [
     "Kotlin",
@@ -112,10 +112,12 @@ function parseArchitecture(text: string): TreeNode {
 
   lines.forEach((line) => {
     if (!line.trim()) return;
+
     const indent = (line.match(/│| /g) || []).join("").length;
-    const name = line.replace(/.*[├──└──]\s*/, "").trim();
+    const name = line.replace(/^.*?(?:├──|└──)\s*/, "").trim();
 
     const newNode: TreeNode = { name, children: [], level: stack.length };
+
     while (stack.length > 0 && stack[stack.length - 1].indent >= indent) {
       stack.pop();
     }
@@ -145,10 +147,10 @@ function useTheme() {
   return { theme, setTheme };
 }
 
-const Navbar: React.FC<{ onToggleTheme: (t: string) => void; theme: string }> = ({
-  onToggleTheme,
-  theme,
-}) => (
+const Navbar: React.FC<{
+  onToggleTheme: (t: string) => void;
+  theme: string;
+}> = ({ onToggleTheme, theme }) => (
   <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 backdrop-blur bg-zinc-950/60">
     <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
       <Link href="/" className="font-semibold tracking-tight text-white">
@@ -187,7 +189,7 @@ const Navbar: React.FC<{ onToggleTheme: (t: string) => void; theme: string }> = 
 );
 
 /* ==========================================
-   Carousel (next/image + animasi)
+   Carousel (next/image)
    ========================================== */
 const CarouselImageCenter: React.FC<{ src: string; alt: string }> = ({
   src,
@@ -200,6 +202,7 @@ const CarouselImageCenter: React.FC<{ src: string; alt: string }> = ({
       fill
       className="object-contain rounded-2xl shadow-2xl"
       sizes="(max-width: 768px) 250px, 250px"
+      priority={false}
     />
   </div>
 );
@@ -215,14 +218,15 @@ const CarouselImageSide: React.FC<{ src: string; alt: string }> = ({
       fill
       className="object-contain rounded-2xl"
       sizes="(max-width: 768px) 250px, 250px"
+      priority={false}
     />
   </div>
 );
 
-const ImageCarousel: React.FC<{ images: string[]; captions: string[] }> = ({
-  images,
-  captions,
-}) => {
+const ImageCarousel: React.FC<{
+  images: string[];
+  captions: string[];
+}> = ({ images, captions }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const handleNext = () => setCurrentIndex((p) => (p + 1) % images.length);
   const handlePrev = () =>
@@ -231,10 +235,12 @@ const ImageCarousel: React.FC<{ images: string[]; captions: string[] }> = ({
   return (
     <div className="relative w-full flex flex-col items-center justify-center">
       <div className="relative w-full h-[600px] flex items-center justify-center overflow-hidden">
+        {/* gradient tepi */}
         <div className="absolute left-0 top-0 w-[20%] h-full bg-gradient-to-r from-zinc-950 z-20 pointer-events-none" />
         <div className="absolute right-0 top-0 w-[20%] h-full bg-gradient-to-l from-zinc-950 z-20 pointer-events-none" />
 
         <AnimatePresence>
+          {/* Tengah */}
           <motion.div
             key={`center-${currentIndex}`}
             className="absolute z-10"
@@ -249,13 +255,24 @@ const ImageCarousel: React.FC<{ images: string[]; captions: string[] }> = ({
             />
           </motion.div>
 
+          {/* Samping */}
           {images.length > 1 && (
             <>
               <motion.div
                 key={`prev-${currentIndex}`}
                 className="absolute z-0"
-                initial={{ opacity: 0, scale: 0.5, x: "-120%", filter: "blur(8px)" }}
-                animate={{ opacity: 0.4, scale: 0.7, x: "-120%", filter: "blur(4px)" }}
+                initial={{
+                  opacity: 0,
+                  scale: 0.5,
+                  x: "-120%",
+                  filter: "blur(8px)",
+                }}
+                animate={{
+                  opacity: 0.4,
+                  scale: 0.7,
+                  x: "-120%",
+                  filter: "blur(4px)",
+                }}
                 transition={{ type: "spring", stiffness: 200, damping: 25 }}
               >
                 <CarouselImageSide
@@ -269,8 +286,18 @@ const ImageCarousel: React.FC<{ images: string[]; captions: string[] }> = ({
               <motion.div
                 key={`next-${currentIndex}`}
                 className="absolute z-0"
-                initial={{ opacity: 0, scale: 0.5, x: "120%", filter: "blur(8px)" }}
-                animate={{ opacity: 0.4, scale: 0.7, x: "120%", filter: "blur(4px)" }}
+                initial={{
+                  opacity: 0,
+                  scale: 0.5,
+                  x: "120%",
+                  filter: "blur(8px)",
+                }}
+                animate={{
+                  opacity: 0.4,
+                  scale: 0.7,
+                  x: "120%",
+                  filter: "blur(4px)",
+                }}
                 transition={{ type: "spring", stiffness: 200, damping: 25 }}
               >
                 <CarouselImageSide
@@ -284,6 +311,7 @@ const ImageCarousel: React.FC<{ images: string[]; captions: string[] }> = ({
           )}
         </AnimatePresence>
 
+        {/* nav */}
         <button
           onClick={handlePrev}
           className="absolute left-8 top-1/2 -translate-y-1/2 z-30 p-2 bg-black/20 rounded-full text-white hover:bg-black/40 transition-colors"
@@ -300,6 +328,7 @@ const ImageCarousel: React.FC<{ images: string[]; captions: string[] }> = ({
         </button>
       </div>
 
+      {/* caption */}
       <div className="text-center mt-4 w-full px-8 h-10">
         <AnimatePresence mode="wait">
           <motion.p
@@ -319,7 +348,7 @@ const ImageCarousel: React.FC<{ images: string[]; captions: string[] }> = ({
 };
 
 /* ==========================================
-   Arsitektur (visual)
+   Arsitektur Tree
    ========================================== */
 const TreeNodeComponent: React.FC<{ node: TreeNode; isLast: boolean }> = ({
   node,
@@ -411,10 +440,13 @@ export default function ProjectDetailPage() {
         {/* Galeri */}
         <div className="mt-16 md:mt-24">
           <h2 className="text-3xl font-bold text-center mb-4">Galeri Proyek</h2>
-          <ImageCarousel images={projectData.gallery} captions={projectData.galleryCaptions} />
+          <ImageCarousel
+            images={projectData.gallery}
+            captions={projectData.galleryCaptions}
+          />
         </div>
 
-        {/* Tujuan, Tantangan & Solusi + Fitur + (TEKNOLOGI DI TENGAH) */}
+        {/* Tujuan & Fitur */}
         <div className="mt-16 md:mt-24 grid md:grid-cols-2 gap-12 items-start">
           <div className="space-y-8">
             <div>
@@ -451,23 +483,23 @@ export default function ProjectDetailPage() {
               ))}
             </ul>
           </div>
+        </div>
 
-          {/* TEKNOLOGI – DI TENGAH */}
-          <div className="md:col-span-2 mt-8">
-            <h3 className="text-3xl font-bold text-center flex items-center justify-center gap-3 mb-8">
-              <Wrench className="text-indigo-400" /> Teknologi yang Digunakan
-            </h3>
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8">
-              <div className="flex flex-wrap justify-center gap-3">
-                {projectData.techStack.map((tech) => (
-                  <div
-                    key={tech}
-                    className="rounded-lg bg-indigo-900/50 text-indigo-300 px-4 py-2 text-sm font-medium"
-                  >
-                    {tech}
-                  </div>
-                ))}
-              </div>
+        {/* Teknologi yang Digunakan — di tengah (di bawah Tantangan & Solusi, di atas Arsitektur) */}
+        <div className="mt-16 md:mt-24">
+          <h3 className="text-3xl font-bold text-center flex items-center justify-center gap-3 mb-8">
+            <Wrench className="text-indigo-400" /> Teknologi yang Digunakan
+          </h3>
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8">
+            <div className="flex flex-wrap justify-center gap-3">
+              {projectData.techStack.map((tech) => (
+                <div
+                  key={tech}
+                  className="rounded-lg bg-indigo-900/50 text-indigo-300 px-4 py-2 text-sm font-medium"
+                >
+                  {tech}
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -494,6 +526,7 @@ export default function ProjectDetailPage() {
               <p className="font-medium">{projectData.prevProject.name}</p>
             </div>
           </Link>
+
           <Link
             href={`/proyek/${projectData.nextProject.slug}`}
             className="flex items-center gap-2 text-zinc-400 hover:text-indigo-400 transition-colors text-right"
