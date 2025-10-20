@@ -395,7 +395,7 @@ const ArchitectureTree: React.FC<{ data: TreeNode }> = ({ data }) => (
 );
 
 /* ==========================================
-   Halaman Utama
+   Halaman
    ========================================== */
 export default function ProjectDetailPage() {
   const { theme, setTheme } = useTheme();
@@ -437,7 +437,7 @@ export default function ProjectDetailPage() {
           />
         </div>
 
-        {/* Tujuan, Tantangan & Solusi + Fitur */}
+        {/* Tujuan, Tantangan & Solusi + Fitur + Teknologi */}
         <div className="mt-16 md:mt-24 grid md:grid-cols-2 gap-12 items-start">
           <div className="space-y-8">
             <div>
@@ -477,7 +477,7 @@ export default function ProjectDetailPage() {
             </ul>
           </div>
 
-          {/* Teknologi yang Digunakan — di tengah (setelah Tantangan, sebelum Arsitektur) */}
+          {/* Teknologi yang Digunakan – di tengah */}
           <div className="md:col-span-2 mt-12">
             <h3 className="text-3xl font-bold text-center flex items-center justify-center gap-3 mb-8">
               <Wrench className="text-indigo-400" /> Teknologi yang Digunakan
