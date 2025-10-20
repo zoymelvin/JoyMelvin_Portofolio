@@ -346,7 +346,7 @@ const ArchitectureTree: React.FC<{ data: TreeNode }> = ({ data }) => (
     </div>
     <div className="pl-6">
       {data.children.map((c, i) => (
-        <TreeNodeComponent key={i} node={c} isLast={i === data.children.length - 1} />
+        <TreeNodeComponent key={i} node={c} isLast={i === c.children.length - 1} />
       ))}
     </div>
   </div>
@@ -392,7 +392,7 @@ export default function ProjectDetailPage() {
           <ImageCarousel images={projectData.gallery} captions={projectData.galleryCaptions} />
         </div>
 
-        {/* Tujuan, Tantangan & Solusi + Fitur + Teknologi */}
+        {/* Tujuan, Tantangan & Solusi + Fitur + Teknologi (di tengah) */}
         <div className="mt-16 md:mt-24 grid md:grid-cols-2 gap-12 items-start">
           <div className="space-y-8">
             <div>

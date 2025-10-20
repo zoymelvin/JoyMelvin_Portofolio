@@ -19,15 +19,12 @@ import {
   Moon,
   SunMedium,
   Send,
-  X,
-   Wrench, 
-  ExternalLink,
-  Award,
+  Wrench,
 } from "lucide-react";
 
-// ==========================================
-// Data untuk Halaman Ini (BookEat)
-// ==========================================
+/* ==========================================
+   Data untuk Halaman Ini (BookEat)
+   ========================================== */
 const projectData = {
   title: "BookEat – Restaurant Booking",
   shortDescription:
@@ -59,7 +56,7 @@ const projectData = {
     problem:
       "Ketika seorang pelanggan memesan meja, status meja tersebut harus segera diperbarui di aplikasi semua pelanggan lain dan di dasbor restoran untuk mencegah pemesanan ganda (double booking).",
     solution:
-      "Saya memanfaatkan Firebase Realtime Database. Setiap meja memiliki status (misalnya, 'tersedia', 'dipesan'). Dengan menggunakan listener dari Firebase, setiap kali status sebuah meja diubah di database, perubahan tersebut akan langsung di-push ke semua klien yang terhubung. Ini memastikan dasbor restoran dan aplikasi pelanggan selalu menampilkan data ketersediaan meja yang sinkron dan akurat.",
+      "Memanfaatkan Firebase Realtime Database. Setiap meja memiliki status ('tersedia', 'dipesan'). Listener Firebase mendorong perubahan ke semua klien secara langsung sehingga ketersediaan meja di aplikasi pelanggan dan dasbor restoran selalu sinkron.",
   },
   techStack: [
     "Kotlin",
@@ -74,9 +71,9 @@ const projectData = {
   nextProject: { name: "DOKIDOKI", slug: "dokidoki" },
 };
 
-// ==========================================
-// Arsitektur (ASCII) — diparse seperti RasAi
-// ==========================================
+/* ==========================================
+   Arsitektur (ASCII) — diparse ke TreeNode
+   ========================================== */
 const projectArchitectureString = `
 BookEat/
 ├── app/
@@ -98,9 +95,9 @@ BookEat/
 └── settings.gradle.kts
 `;
 
-// ==========================================
-// Tipe Data & Parser
-// ==========================================
+/* ==========================================
+   Tipe Data & Parser
+   ========================================== */
 interface TreeNode {
   name: string;
   children: TreeNode[];
@@ -116,12 +113,11 @@ function parseArchitecture(text: string): TreeNode {
   lines.forEach((line) => {
     if (!line.trim()) return;
 
-    // indent dari '│' atau spasi
     const indent = (line.match(/│| /g) || []).join("").length;
-    // ambil nama setelah '├──' / '└──'
     const name = line.replace(/.*[├──└──]\s*/, "").trim();
 
     const newNode: TreeNode = { name, children: [], level: stack.length };
+
     while (stack.length > 0 && stack[stack.length - 1].indent >= indent) {
       stack.pop();
     }
@@ -134,9 +130,9 @@ function parseArchitecture(text: string): TreeNode {
 
 const architectureData = parseArchitecture(projectArchitectureString);
 
-// ==========================================
-// Komponen UI (Navbar + Theme Toggle)
-// ==========================================
+/* ==========================================
+   UI (Navbar + Theme Toggle)
+   ========================================== */
 function useTheme() {
   const [theme, setTheme] = useState("dark");
   useEffect(() => {
@@ -145,10 +141,8 @@ function useTheme() {
     document.documentElement.classList.toggle("dark", savedTheme === "dark");
   }, []);
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      document.documentElement.classList.toggle("dark", theme === "dark");
-      localStorage.setItem("theme", theme);
-    }
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    localStorage.setItem("theme", theme);
   }, [theme]);
   return { theme, setTheme };
 }
@@ -163,15 +157,17 @@ const Navbar: React.FC<{
         zoymelvin
       </Link>
       <div className="hidden gap-6 md:flex">
-        {["tentang", "pendidikan", "skill", "proyek", "sertifikat", "kontak"].map((id) => (
-          <Link
-            key={id}
-            href={`/#${id}`}
-            className="text-sm capitalize text-zinc-300 hover:text-indigo-400 transition-colors"
-          >
-            {id}
-          </Link>
-        ))}
+        {["tentang", "pendidikan", "skill", "proyek", "sertifikat", "kontak"].map(
+          (id) => (
+            <Link
+              key={id}
+              href={`/#${id}`}
+              className="text-sm capitalize text-zinc-300 hover:text-indigo-400 transition-colors"
+            >
+              {id}
+            </Link>
+          )
+        )}
       </div>
       <div className="flex items-center gap-2">
         <button
@@ -192,9 +188,9 @@ const Navbar: React.FC<{
   </header>
 );
 
-// ==========================================
-// Image Carousel — pakai next/image (rapih)
-// ==========================================
+/* ==========================================
+   Image Carousel — pakai next/image
+   ========================================== */
 const CarouselImageCenter: React.FC<{ src: string; alt: string }> = ({ src, alt }) => (
   <div className="relative w-[250px] h-[500px]">
     <Image
@@ -221,21 +217,25 @@ const CarouselImageSide: React.FC<{ src: string; alt: string }> = ({ src, alt })
   </div>
 );
 
-const ImageCarousel = ({ images, captions }: { images: string[]; captions: string[] }) => {
+const ImageCarousel: React.FC<{ images: string[]; captions: string[] }> = ({
+  images,
+  captions,
+}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleNext = () => setCurrentIndex((prev) => (prev + 1) % images.length);
-  const handlePrev = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  const handlePrev = () =>
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
 
   return (
     <div className="relative w-full flex flex-col items-center justify-center">
       <div className="relative w-full h-[600px] flex items-center justify-center overflow-hidden">
         {/* gradient kiri/kanan */}
-        <div className="absolute left-0 top-0 w-[20%] h-full bg-gradient-to-r from-zinc-950 z-20 pointer-events-none"></div>
-        <div className="absolute right-0 top-0 w-[20%] h-full bg-gradient-to-l from-zinc-950 z-20 pointer-events-none"></div>
+        <div className="absolute left-0 top-0 w-[20%] h-full bg-gradient-to-r from-zinc-950 z-20 pointer-events-none" />
+        <div className="absolute right-0 top-0 w-[20%] h-full bg-gradient-to-l from-zinc-950 z-20 pointer-events-none" />
 
         <AnimatePresence>
-          {/* Gambar Tengah */}
+          {/* Tengah */}
           <motion.div
             key={`center-${currentIndex}`}
             className="absolute z-10"
@@ -250,7 +250,7 @@ const ImageCarousel = ({ images, captions }: { images: string[]; captions: strin
             />
           </motion.div>
 
-          {/* Gambar Samping */}
+          {/* Samping kiri & kanan */}
           {images.length > 1 && (
             <>
               <motion.div
@@ -262,7 +262,9 @@ const ImageCarousel = ({ images, captions }: { images: string[]; captions: strin
               >
                 <CarouselImageSide
                   src={images[(currentIndex - 1 + images.length) % images.length]}
-                  alt={`BookEat screenshot ${((currentIndex - 1 + images.length) % images.length) + 1}`}
+                  alt={`BookEat screenshot ${
+                    ((currentIndex - 1 + images.length) % images.length) + 1
+                  }`}
                 />
               </motion.div>
 
@@ -275,7 +277,9 @@ const ImageCarousel = ({ images, captions }: { images: string[]; captions: strin
               >
                 <CarouselImageSide
                   src={images[(currentIndex + 1) % images.length]}
-                  alt={`BookEat screenshot ${((currentIndex + 1) % images.length) + 1}`}
+                  alt={`BookEat screenshot ${
+                    ((currentIndex + 1) % images.length) + 1
+                  }`}
                 />
               </motion.div>
             </>
@@ -318,32 +322,40 @@ const ImageCarousel = ({ images, captions }: { images: string[]; captions: strin
   );
 };
 
-// ==========================================
-// Arsitektur Tree
-// ==========================================
-const TreeNodeComponent: React.FC<{ node: TreeNode; isLast: boolean }> = ({ node, isLast }) => {
-  const isFolder = node.children.length > 0 || !node.name.includes(".") || node.name.endsWith("/");
+/* ==========================================
+   Arsitektur Tree
+   ========================================== */
+const TreeNodeComponent: React.FC<{ node: TreeNode; isLast: boolean }> = ({
+  node,
+  isLast,
+}) => {
+  const isFolder =
+    node.children.length > 0 || !node.name.includes(".") || node.name.endsWith("/");
 
   return (
     <div className="relative pl-8">
-      {/* garis vertikal */}
       <div
-        className={`absolute left-[9px] top-0 w-[2px] bg-indigo-900/60 ${isLast ? "h-[18px]" : "h-full"}`}
+        className={`absolute left-[9px] top-0 w-[2px] bg-indigo-900/60 ${
+          isLast ? "h-[18px]" : "h-full"
+        }`}
       />
-      {/* garis horizontal */}
       <div className="absolute left-[11px] top-[17px] h-[2px] w-4 bg-indigo-900/60" />
 
-      {/* ikon & nama */}
       <div className="relative flex items-center gap-2 mb-2 pt-1">
-        <div className="text-indigo-400">{isFolder ? <Folder size={16} /> : <File size={16} />}</div>
+        <div className="text-indigo-400">
+          {isFolder ? <Folder size={16} /> : <File size={16} />}
+        </div>
         <span className="text-zinc-300">{node.name}</span>
       </div>
 
-      {/* anak-anak */}
       {isFolder && (
         <div className="pl-6">
           {node.children.map((child, index) => (
-            <TreeNodeComponent key={index} node={child} isLast={index === node.children.length - 1} />
+            <TreeNodeComponent
+              key={index}
+              node={child}
+              isLast={index === node.children.length - 1}
+            />
           ))}
         </div>
       )}
@@ -359,13 +371,19 @@ const ArchitectureTree: React.FC<{ data: TreeNode }> = ({ data }) => (
     </div>
     <div className="pl-6">
       {data.children.map((child, index) => (
-        <TreeNodeComponent key={index} node={child} isLast={index === data.children.length - 1} />
+        <TreeNodeComponent
+          key={index}
+          node={child}
+          isLast={index === data.children.length - 1}
+        />
       ))}
     </div>
   </div>
 );
 
-// --- Komponen Utama Halaman ---
+/* ==========================================
+   Komponen Utama Halaman
+   ========================================== */
 export default function ProjectDetailPage() {
   const { theme, setTheme } = useTheme();
 
@@ -384,7 +402,9 @@ export default function ProjectDetailPage() {
           <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-white">
             {projectData.title}
           </h1>
-          <p className="mt-4 max-w-3xl text-lg text-zinc-400">{projectData.shortDescription}</p>
+          <p className="mt-4 max-w-3xl text-lg text-zinc-400">
+            {projectData.shortDescription}
+          </p>
           <a
             href={projectData.githubUrl}
             target="_blank"
@@ -398,7 +418,10 @@ export default function ProjectDetailPage() {
         {/* Galeri */}
         <div className="mt-16 md:mt-24">
           <h2 className="text-3xl font-bold text-center mb-4">Galeri Proyek</h2>
-          <ImageCarousel images={projectData.gallery} captions={projectData.galleryCaptions} />
+          <ImageCarousel
+            images={projectData.gallery}
+            captions={projectData.galleryCaptions}
+          />
         </div>
 
         {/* Tujuan & Fitur */}
@@ -414,7 +437,9 @@ export default function ProjectDetailPage() {
               <h3 className="text-2xl font-semibold flex items-center gap-3 mb-3">
                 <Lightbulb className="text-indigo-400" /> Tantangan & Solusi
               </h3>
-              <p className="font-semibold text-zinc-200">{projectData.challenge.title}</p>
+              <p className="font-semibold text-zinc-200">
+                {projectData.challenge.title}
+              </p>
               <p className="text-zinc-400 mt-1">{projectData.challenge.problem}</p>
               <p className="text-zinc-400 mt-2">
                 <strong className="text-indigo-400">Solusi:</strong>{" "}
@@ -437,9 +462,7 @@ export default function ProjectDetailPage() {
           </div>
         </div>
 
-
-         {/* >>> Pindahkan Teknologi ke ATAS Arsitektur <<< */}
-        {/* Tech Stack */}
+        {/* ✅ Teknologi yang Digunakan — DI TENGAH (di bawah Tantangan & Solusi, di atas Arsitektur) */}
         <div className="mt-16 md:mt-24">
           <h3 className="text-3xl font-bold text-center flex items-center justify-center gap-3 mb-8">
             <Wrench className="text-indigo-400" /> Teknologi yang Digunakan
@@ -457,7 +480,7 @@ export default function ProjectDetailPage() {
             </div>
           </div>
         </div>
-        
+
         {/* Arsitektur */}
         <div className="mt-16 md:mt-24">
           <h3 className="text-3xl font-bold text-center flex items-center justify-center gap-3 mb-8">

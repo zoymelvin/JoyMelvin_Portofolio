@@ -54,7 +54,7 @@ const projectData = {
     problem:
       "Pemilik usaha membutuhkan rekap data penjualan dalam format yang mudah diolah di luar aplikasi, seperti spreadsheet (Excel). Aplikasi perlu menyediakan fitur untuk mengekspor data transaksi ke dalam format file yang universal.",
     solution:
-      "Saya membuat sebuah utility class `CsvExporter.kt`. Class ini bertanggung jawab untuk mengambil data transaksi dari Firebase, memformatnya sesuai standar CSV, lalu menyimpan file `.csv` lewat Storage Access Framework Android.",
+      "Saya membuat utility `CsvExporter.kt` untuk mengambil data transaksi dari Firebase, memformat ke standar CSV, kemudian menyimpan berkas `.csv` melalui Storage Access Framework Android.",
   },
   techStack: [
     "Kotlin",
@@ -112,12 +112,10 @@ function parseArchitecture(text: string): TreeNode {
 
   lines.forEach((line) => {
     if (!line.trim()) return;
-
     const indent = (line.match(/│| /g) || []).join("").length;
     const name = line.replace(/.*[├──└──]\s*/, "").trim();
 
     const newNode: TreeNode = { name, children: [], level: stack.length };
-
     while (stack.length > 0 && stack[stack.length - 1].indent >= indent) {
       stack.pop();
     }
@@ -147,10 +145,10 @@ function useTheme() {
   return { theme, setTheme };
 }
 
-const Navbar: React.FC<{
-  onToggleTheme: (t: string) => void;
-  theme: string;
-}> = ({ onToggleTheme, theme }) => (
+const Navbar: React.FC<{ onToggleTheme: (t: string) => void; theme: string }> = ({
+  onToggleTheme,
+  theme,
+}) => (
   <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 backdrop-blur bg-zinc-950/60">
     <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
       <Link href="/" className="font-semibold tracking-tight text-white">
@@ -189,7 +187,7 @@ const Navbar: React.FC<{
 );
 
 /* ==========================================
-   Carousel (next/image)
+   Carousel (next/image + animasi)
    ========================================== */
 const CarouselImageCenter: React.FC<{ src: string; alt: string }> = ({
   src,
@@ -202,7 +200,6 @@ const CarouselImageCenter: React.FC<{ src: string; alt: string }> = ({
       fill
       className="object-contain rounded-2xl shadow-2xl"
       sizes="(max-width: 768px) 250px, 250px"
-      priority={false}
     />
   </div>
 );
@@ -218,15 +215,14 @@ const CarouselImageSide: React.FC<{ src: string; alt: string }> = ({
       fill
       className="object-contain rounded-2xl"
       sizes="(max-width: 768px) 250px, 250px"
-      priority={false}
     />
   </div>
 );
 
-const ImageCarousel: React.FC<{
-  images: string[];
-  captions: string[];
-}> = ({ images, captions }) => {
+const ImageCarousel: React.FC<{ images: string[]; captions: string[] }> = ({
+  images,
+  captions,
+}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const handleNext = () => setCurrentIndex((p) => (p + 1) % images.length);
   const handlePrev = () =>
@@ -258,18 +254,8 @@ const ImageCarousel: React.FC<{
               <motion.div
                 key={`prev-${currentIndex}`}
                 className="absolute z-0"
-                initial={{
-                  opacity: 0,
-                  scale: 0.5,
-                  x: "-120%",
-                  filter: "blur(8px)",
-                }}
-                animate={{
-                  opacity: 0.4,
-                  scale: 0.7,
-                  x: "-120%",
-                  filter: "blur(4px)",
-                }}
+                initial={{ opacity: 0, scale: 0.5, x: "-120%", filter: "blur(8px)" }}
+                animate={{ opacity: 0.4, scale: 0.7, x: "-120%", filter: "blur(4px)" }}
                 transition={{ type: "spring", stiffness: 200, damping: 25 }}
               >
                 <CarouselImageSide
@@ -283,18 +269,8 @@ const ImageCarousel: React.FC<{
               <motion.div
                 key={`next-${currentIndex}`}
                 className="absolute z-0"
-                initial={{
-                  opacity: 0,
-                  scale: 0.5,
-                  x: "120%",
-                  filter: "blur(8px)",
-                }}
-                animate={{
-                  opacity: 0.4,
-                  scale: 0.7,
-                  x: "120%",
-                  filter: "blur(4px)",
-                }}
+                initial={{ opacity: 0, scale: 0.5, x: "120%", filter: "blur(8px)" }}
+                animate={{ opacity: 0.4, scale: 0.7, x: "120%", filter: "blur(4px)" }}
                 transition={{ type: "spring", stiffness: 200, damping: 25 }}
               >
                 <CarouselImageSide
@@ -435,13 +411,10 @@ export default function ProjectDetailPage() {
         {/* Galeri */}
         <div className="mt-16 md:mt-24">
           <h2 className="text-3xl font-bold text-center mb-4">Galeri Proyek</h2>
-          <ImageCarousel
-            images={projectData.gallery}
-            captions={projectData.galleryCaptions}
-          />
+          <ImageCarousel images={projectData.gallery} captions={projectData.galleryCaptions} />
         </div>
 
-        {/* Tujuan & Fitur */}
+        {/* Tujuan, Tantangan & Solusi + Fitur + (TEKNOLOGI DI TENGAH) */}
         <div className="mt-16 md:mt-24 grid md:grid-cols-2 gap-12 items-start">
           <div className="space-y-8">
             <div>
@@ -478,23 +451,23 @@ export default function ProjectDetailPage() {
               ))}
             </ul>
           </div>
-        </div>
 
-        {/* Teknologi */}
-        <div className="mt-16 md:mt-24">
-          <h3 className="text-3xl font-bold text-center flex items-center justify-center gap-3 mb-8">
-            <Wrench className="text-indigo-400" /> Teknologi yang Digunakan
-          </h3>
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8">
-            <div className="flex flex-wrap justify-center gap-3">
-              {projectData.techStack.map((tech) => (
-                <div
-                  key={tech}
-                  className="rounded-lg bg-indigo-900/50 text-indigo-300 px-4 py-2 text-sm font-medium"
-                >
-                  {tech}
-                </div>
-              ))}
+          {/* TEKNOLOGI – DI TENGAH */}
+          <div className="md:col-span-2 mt-8">
+            <h3 className="text-3xl font-bold text-center flex items-center justify-center gap-3 mb-8">
+              <Wrench className="text-indigo-400" /> Teknologi yang Digunakan
+            </h3>
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8">
+              <div className="flex flex-wrap justify-center gap-3">
+                {projectData.techStack.map((tech) => (
+                  <div
+                    key={tech}
+                    className="rounded-lg bg-indigo-900/50 text-indigo-300 px-4 py-2 text-sm font-medium"
+                  >
+                    {tech}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -509,8 +482,6 @@ export default function ProjectDetailPage() {
           </div>
         </div>
 
-        
-
         {/* Navigasi bawah */}
         <div className="mt-24 pt-12 border-t border-zinc-800 flex justify-between items-center">
           <Link
@@ -523,7 +494,6 @@ export default function ProjectDetailPage() {
               <p className="font-medium">{projectData.prevProject.name}</p>
             </div>
           </Link>
-
           <Link
             href={`/proyek/${projectData.nextProject.slug}`}
             className="flex items-center gap-2 text-zinc-400 hover:text-indigo-400 transition-colors text-right"
