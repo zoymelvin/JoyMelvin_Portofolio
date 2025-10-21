@@ -110,8 +110,7 @@ function parseArchitecture(text: string): TreeNode {
     if (!line.trim()) return;
 
     const indent = (line.match(/│| /g) || []).join("").length;
-    // lebih aman: cari marker "├──" atau "└──"
-    const name = line.replace(/^.*?(?:├──|└──)\s*/, "").trim();
+    const name = line.replace(/.*[├──└──]\s*/, "").trim();
 
     const newNode: TreeNode = { name, children: [], level: stack.length };
 
@@ -135,7 +134,7 @@ function useTheme() {
   useEffect(() => {
     const saved = localStorage.getItem("theme") || "dark";
     setTheme(saved);
-    document.documentElement.classList.toggle("dark", saved === "dark");
+    document.documentElement.classList.add(saved === "dark" ? "dark" : "light");
   }, []);
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
@@ -478,7 +477,7 @@ export default function ProjectDetailPage() {
             </ul>
           </div>
 
-          {/* Teknologi yang Digunakan — Full Width & di tengah */}
+          {/* Teknologi yang Digunakan – di tengah */}
           <div className="md:col-span-2 mt-12">
             <h3 className="text-3xl font-bold text-center flex items-center justify-center gap-3 mb-8">
               <Wrench className="text-indigo-400" /> Teknologi yang Digunakan

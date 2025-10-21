@@ -114,7 +114,7 @@ function parseArchitecture(text: string): TreeNode {
     if (!line.trim()) return;
 
     const indent = (line.match(/│| /g) || []).join("").length;
-    const name = line.replace(/^.*?(?:├──|└──)\s*/, "").trim();
+    const name = line.replace(/.*[├──└──]\s*/, "").trim();
 
     const newNode: TreeNode = { name, children: [], level: stack.length };
 
@@ -138,7 +138,7 @@ function useTheme() {
   useEffect(() => {
     const saved = localStorage.getItem("theme") || "dark";
     setTheme(saved);
-    document.documentElement.classList.toggle("dark", saved === "dark");
+    document.documentElement.classList.add(saved === "dark" ? "dark" : "light");
   }, []);
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
@@ -235,12 +235,10 @@ const ImageCarousel: React.FC<{
   return (
     <div className="relative w-full flex flex-col items-center justify-center">
       <div className="relative w-full h-[600px] flex items-center justify-center overflow-hidden">
-        {/* gradient tepi */}
         <div className="absolute left-0 top-0 w-[20%] h-full bg-gradient-to-r from-zinc-950 z-20 pointer-events-none" />
         <div className="absolute right-0 top-0 w-[20%] h-full bg-gradient-to-l from-zinc-950 z-20 pointer-events-none" />
 
         <AnimatePresence>
-          {/* Tengah */}
           <motion.div
             key={`center-${currentIndex}`}
             className="absolute z-10"
@@ -255,7 +253,6 @@ const ImageCarousel: React.FC<{
             />
           </motion.div>
 
-          {/* Samping */}
           {images.length > 1 && (
             <>
               <motion.div
@@ -311,7 +308,6 @@ const ImageCarousel: React.FC<{
           )}
         </AnimatePresence>
 
-        {/* nav */}
         <button
           onClick={handlePrev}
           className="absolute left-8 top-1/2 -translate-y-1/2 z-30 p-2 bg-black/20 rounded-full text-white hover:bg-black/40 transition-colors"
@@ -328,7 +324,6 @@ const ImageCarousel: React.FC<{
         </button>
       </div>
 
-      {/* caption */}
       <div className="text-center mt-4 w-full px-8 h-10">
         <AnimatePresence mode="wait">
           <motion.p
@@ -348,7 +343,7 @@ const ImageCarousel: React.FC<{
 };
 
 /* ==========================================
-   Arsitektur Tree
+   Arsitektur (visual)
    ========================================== */
 const TreeNodeComponent: React.FC<{ node: TreeNode; isLast: boolean }> = ({
   node,
@@ -485,7 +480,7 @@ export default function ProjectDetailPage() {
           </div>
         </div>
 
-        {/* Teknologi yang Digunakan — di tengah (di bawah Tantangan & Solusi, di atas Arsitektur) */}
+        {/* Teknologi */}
         <div className="mt-16 md:mt-24">
           <h3 className="text-3xl font-bold text-center flex items-center justify-center gap-3 mb-8">
             <Wrench className="text-indigo-400" /> Teknologi yang Digunakan
